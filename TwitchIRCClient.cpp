@@ -53,7 +53,7 @@ bool TwitchIRCClient::SendIRC(std::string data)
 
 bool TwitchIRCClient::Login(std::string nick, std::string oauth)
 {
-	if (!oauth.empty() && !SendIRC("PASS oauth:" + oauth))
+	if (!oauth.empty() && !SendIRC("PASS " + oauth))
 		return false;
 	if (SendIRC("NICK " + nick))
 		return true;
