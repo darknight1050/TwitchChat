@@ -61,8 +61,13 @@ bool TwitchIRCClient::Login(std::string nick, std::string oauth)
     return false;
 }
 
+// changes string to lowercase in-place
+void strToLower(std::string& str) {
+    std::for_each(str.begin(), str.end(), [](char& c) { c = ::tolower(c); });
+}
 bool TwitchIRCClient::JoinChannel(std::string channel)
 {
+    strToLower(channel);
     LeaveChannel();
     _currentChannel = channel;
 	if (SendIRC("JOIN #" + channel))
