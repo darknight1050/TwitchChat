@@ -49,7 +49,7 @@ public:
 private:
     int _socket;
 
-    bool _connected;
+    bool _connected = false;
 };
 
 #endif
