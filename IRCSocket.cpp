@@ -113,14 +113,18 @@ bool IRCSocket::SendData(char const* data)
 
 std::string IRCSocket::ReceiveData()
 {
-    char buffer[MAXDATASIZE];
+    if (_connected)
+    {
+        char buffer[MAXDATASIZE];
+        memset(buffer, 0, MAXDATASIZE);
 
-    memset(buffer, 0, MAXDATASIZE);
-    int bytes = recv(_socket, buffer, MAXDATASIZE - 1, 0);
-    auto err = errno;
-    if (bytes > 0) {
-        return std::string(buffer);
-    } else if (err != EWOULDBLOCK)
-        Disconnect();
+        int bytes = recv(_socket, buffer, MAXDATASIZE - 1, 0);
+        auto err = errno;
+
+        if (bytes > 0) {
+            return std::string(buffer);
+        } else if (err != EWOULDBLOCK)
+            Disconnect();
+    }
     return "";
 }
