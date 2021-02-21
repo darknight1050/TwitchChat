@@ -49,14 +49,6 @@ bool IRCSocket::Init()
         return false;
     }
 
-    #ifdef _WIN32
-    u_long mode = 0;
-    ioctlsocket(_socket, FIONBIO, &mode);
-    #else
-    fcntl(_socket, F_SETFL, O_NONBLOCK);
-    fcntl(_socket, F_SETFL, O_ASYNC);
-    #endif
-
     return true;
 }
 
@@ -87,6 +79,12 @@ bool IRCSocket::Connect(char const* host, int port)
         return false;
     }
 
+    #ifdef _WIN32
+    u_long mode = 0;
+    ioctlsocket(_socket, FIONBIO, &mode);
+    #else
+    fcntl(_socket, F_SETFL, fcntl(_socket, F_GETFL, 0) | O_NONBLOCK);
+    #endif
     _connected = true;
 
     return true;
@@ -118,13 +116,11 @@ std::string IRCSocket::ReceiveData()
     char buffer[MAXDATASIZE];
 
     memset(buffer, 0, MAXDATASIZE);
-
     int bytes = recv(_socket, buffer, MAXDATASIZE - 1, 0);
-
-    if (bytes > 0)
+    auto err = errno;
+    if (bytes > 0) {
         return std::string(buffer);
-    else
+    } else if (err != EWOULDBLOCK)
         Disconnect();
-
     return "";
 }
